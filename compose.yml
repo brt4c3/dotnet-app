@@ -1,7 +1,18 @@
 version: '3'
 
 services:
-
+  win-server:
+    image: windows/servercore:1709
+    container_name: run-win-server
+    volumes:
+      - "./:/work/"
+    ports:
+      - "8080:8080"
+    networks: 
+      - sqldata-con
+    depends_on:
+      - sqldata
+      
   dotnet-app:
     build:
       context: .
@@ -14,6 +25,9 @@ services:
 
   pwsh:
     image: "mcr.microsoft.com/powershell"
+    command: ["pwsh", "-File", "BuildDeleteAssets.ps1"]  
+    volumes:
+      - "./:/work/"  
     networks: 
       - sqldata-con
     depends_on:
