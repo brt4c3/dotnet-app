@@ -1,0 +1,32 @@
+version: '3'
+
+services:
+
+  dotnet-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: run-dotnet
+    networks: 
+      - sqldata-con
+    depends_on:
+      - sqldata
+
+  pwsh:
+    image: "mcr.microsoft.com/powershell"
+    networks: 
+      - sqldata-con
+    depends_on:
+      - sqldata
+
+  sqldata:
+    image: mcr.microsoft.com/mssql/server:latest
+    environment:
+      - SA_PASSWORD=pasword
+      - ACCEPT_EULA=Y
+    ports:
+      - "5433:1433"
+      
+networks:
+  sqldata-con:
+    driver: bridge
