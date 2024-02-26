@@ -1,10 +1,23 @@
 # Define paths
-$sourceFilePath = "DeleteAssets.cs"
-$destinationDirectory = "src/app/"
+$sourceFilePath = "/work/DeleteAssets.cs"
+$logFilepath="./Powershell.log"
+
+# test sourceFilePath
+try {
+    if (!(Test-Path $sourceFilePath)) {
+        throw "File '$sourceFilePath' does not exist."
+    }
+} catch {
+    Add-Content -Path $logFilepath -Value "Error: $_"
+    Exit 1
+}
+
+
+$destinationDirectory = "/work/src/app/"
 $destinationFilePath = "$destinationDirectory/DeleteAssets.dll"
 
 # Define the path to the directory containing the C# source file
-$projectDirectory = "./src/app"
+$projectDirectory = "/work"
 
 try {
     # Change the current directory to the project directory
@@ -16,7 +29,7 @@ try {
     Write-Output "Compilation successful. Output file: $destinationFilePath"
 }
 catch {
-    Write-Error "Failed to compile $sourceFilePath: $_"
+    Write-Error "Failed to compile ${sourceFilePath}: $_"
     Exit 1
 }
 
@@ -33,6 +46,6 @@ try {
     Write-Output "Move successful."
 }
 catch {
-    Write-Error "Failed to move $destinationFilePath to $destinationDirectory: $_"
+    Write-Error "Failed to move $destinationFilePath to ${destinationDirectory}: $_"
     Exit 1
 }

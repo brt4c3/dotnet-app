@@ -2,44 +2,64 @@ version: '3'
 
 services:
   win-server:
-    image: windows/servercore:1709
+    image: mcy93w/windowsservercore:1803
     container_name: run-win-server
+    command: >
+      "pwsh"
+      "-Command"  \
+      "Set-ExecutionPolicy RemoteSigned" \
+      "&& Invoke-WebRequest -Uri 'https://aka.ms/dotnet-download' -OutFile dotnet-installer.exe" \
+      "&& Start-Process dotnet-installer.exe -Wait " \
+      "&& ./work/BuildDeleteAssets.ps1" 
     volumes:
-      - "./:/work/"
+      - "./:/work"
     ports:
       - "8080:8080"
     networks: 
       - sqldata-con
-    depends_on:
-      - sqldata
+    #depends_on:
+    #  - sqldata
       
   dotnet-app:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: run-dotnet
+    command: >
+      "pwsh"
+      "-Command"  \
+      "Set-ExecutionPolicy RemoteSigned" \
+      "&& Invoke-WebRequest -Uri 'https://aka.ms/dotnet-download' -OutFile dotnet-installer.exe" \
+      "&& Start-Process dotnet-installer.exe -Wait " \
+      "&& ./work/BuildDeleteAssets.ps1"
     networks: 
       - sqldata-con
-    depends_on:
-      - sqldata
+    #depends_on:
+    #  - sqldata
 
   pwsh:
     image: "mcr.microsoft.com/powershell"
-    command: ["pwsh", "-File", "BuildDeleteAssets.ps1"]  
+    command: >
+     "pwsh"
+     "-Command"  \
+     "&& Invoke-WebRequest -Uri 'https://aka.ms/dotnet-download' -OutFile dotnet-installer.exe" \
+     "&& Start-Process dotnet-installer.exe -Wait " \
+     "&& ./work/BuildDeleteAssets.ps1"
+    #Set-ExecutionPolicy: Operation is not supported on this platform.
+  
     volumes:
-      - "./:/work/"  
+      - "./:/work"  
     networks: 
       - sqldata-con
-    depends_on:
-      - sqldata
+    #depends_on:
+    #  - sqldata
 
-  sqldata:
-    image: mcr.microsoft.com/mssql/server:latest
-    environment:
-      - SA_PASSWORD=pasword
-      - ACCEPT_EULA=Y
-    ports:
-      - "5433:1433"
+  #sqldata:
+  #  image: mcr.microsoft.com/mssql/server:latest
+  #  environment:
+  #    - SA_PASSWORD=pasword
+  #    - ACCEPT_EULA=Y
+  #  ports:
+  #    - "5433:1433"
       
 networks:
   sqldata-con:
